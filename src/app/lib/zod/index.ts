@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
-import { isValidPhoneNumber } from 'libphonenumber-js';
+import { isValidPhoneNumber } from "react-phone-number-input";
 
 /////////////////////////////////////////
 // HELPER FUNCTIONS
@@ -302,9 +302,9 @@ export type Warehouse = z.infer<typeof WarehouseSchema>
 export const VendorSchema = z.object({
   vendorType: VendorTypeSchema,
   id: z.string(),
-  name: z.string().min(1, { message: "Name must not be empty" }),
+  name: z.string().min(1),
   contact: z.string(),
-  phone: z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }),
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
   keywords: z.string(),
   address: z.string(),
 })
@@ -650,7 +650,7 @@ export const EmployeeSchema = z.object({
   id: z.string(),
   firstName: z.string().min(1, { message: "First name must not be empty" }),
   lastName: z.string().min(1, { message: "Last name must not be empty" }),
-  phone: z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }),
+  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number format" }),
   laborRate: z.number(),
   loginAllowed: z.boolean(),
   email: z.string().nullable(),

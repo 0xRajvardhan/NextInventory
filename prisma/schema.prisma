@@ -110,9 +110,9 @@ model Warehouse {
 
 model Vendor {
   id            String          @id @default(uuid()) /// @zod.string.noDefault()
-  name          String          @unique /// @zod.string.min(1, { message: t('nameRequired') })
+  name          String          @unique /// @zod.string.min(1)
   contact       String
-  vendorType    VendorType /// @zod.custom.use(z.nativeEnum(VendorType).refine((val) => !!val, { message: "Please select a vendor type" }))
+  vendorType    VendorType
   phone         String /// @zod.import(["import { isValidPhoneNumber } from 'react-phone-number-input'"]).custom.use(z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }))
   keywords      String
   address       String
@@ -297,7 +297,7 @@ model Labor {
   hours           Float
   laborRate       Float
   employeeId      String
-  employee        Employee       @relation(fields: [employeeId], references: [id])
+  employee        Employee?       @relation(fields: [employeeId], references: [id])
   WorkOrderTask   WorkOrderTask? @relation(fields: [workOrderTaskId], references: [id])
   workOrderTaskId String?
 }

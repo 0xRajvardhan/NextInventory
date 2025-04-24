@@ -8,8 +8,7 @@ type ActionResult =
   | { success: false; errors: FieldError[] };
 
 export async function createVendor(data: VendorFormValues): Promise<ActionResult> {
-
-  const parsed = VendorFormSchema.safeParse(data); // ✅ works here
+  const parsed = VendorFormSchema.safeParse(data);
 
   if (!parsed.success) {
     const errors: FieldError[] = Object.entries(parsed.error.flatten().fieldErrors).map(
@@ -22,23 +21,42 @@ export async function createVendor(data: VendorFormValues): Promise<ActionResult
     return { success: false, errors };
   }
 
-  // ✅ use parsed.data here
-  const vendor = await prisma.vendor.create({
-    data: {
+  // Check if vendor with the same name already exists
+  const existingVendor = await prisma.vendor.findUnique({
+    where: {
       name: parsed.data.name.toUpperCase(),
-      contact: parsed.data.contact,
-      // vendorType: parsed.data.vendorType?.value || 'Supplier',
-      vendorType: 'Supplier',
-      phone: '12345',
-      // phone: parsed.data.phone,
-      keywords: parsed.data.keywords,
-      address: parsed.data.address,
     },
   });
 
-  return {
-    success: true,
-    message: 'Vendor created',
-    id: vendor.id,
-  };
+  if (existingVendor) {
+    return {
+      success: false,
+      errors: [{ field: 'name', message: 'A vendor with this name already exists' }],
+    };
+  }
+
+  try {
+    const vendor = await prisma.vendor.create({
+      data: {
+        name: parsed.data.name.toUpperCase(),
+        contact: parsed.data.contact,
+        vendorType: typeof parsed.data.vendorType === 'object' ? parsed.data.vendorType.value : parsed.data.vendorType,
+        phone: parsed.data.phone,
+        keywords: parsed.data.keywords,
+        address: parsed.data.address,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Vendor created successfully',
+      id: vendor.id,
+    };
+  } catch (error) {
+    console.error('Error creating vendor:', error);
+    return {
+      success: false,
+      errors: [{ field: 'general', message: 'Failed to create vendor. Please try again.' }],
+    };
+  }
 }
