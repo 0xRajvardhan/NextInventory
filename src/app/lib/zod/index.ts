@@ -143,7 +143,7 @@ export const MeterReadingSchema = z.enum(['None','Hours','Kilometers','Miles','D
 
 export type MeterReadingType = `${z.infer<typeof MeterReadingSchema>}`
 
-export const VendorTypeSchema = z.enum(['Supplier','Distributor','Manufacturer']);
+export const VendorTypeSchema = z.enum(['Supplier', 'Distributor', 'Manufacturer', 'Fabricante', 'Distribuidor', 'Proveedor']);
 
 export type VendorTypeType = `${z.infer<typeof VendorTypeSchema>}`
 
