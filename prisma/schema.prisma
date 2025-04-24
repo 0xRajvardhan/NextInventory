@@ -1,0 +1,508 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+generator zod {
+  provider                  = "zod-prisma-types"
+  output                    = "../src/app/lib/zod"
+  useMultipleFiles          = false
+  createInputTypes          = false
+  createRelationValuesTypes = false
+  disableDefaultStringUuid  = true
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Equipment {
+  id            String  @id @default(uuid()) /// @zod.string.noDefault()
+  unitNumber    String
+  description   String
+  year          Int
+  keywords      String
+  serial        String  @unique
+  tag           String
+  meterTracking Boolean
+
+  primaryMeter        MeterReading? // Type of primary meter (Hours, Kilometers, Miles)
+  primaryMeterReading Float? // Current value of the primary meter
+
+  secondaryMeter        MeterReading? // Type of secondary meter (Hours, Kilometers, Miles)
+  secondaryMeterReading Float? // Current value of the secondary meter
+
+  equipmentType   EquipmentType?  @relation(fields: [equipmentTypeId], references: [id])
+  equipmentTypeId String?
+  make            Make?           @relation(fields: [makeId], references: [id])
+  makeId          String?
+  model           Model?          @relation(fields: [modelId], references: [id])
+  modelId         String?
+  workOrder       WorkOrder[]
+  recurringTask   RecurringTask[]
+  repairTask      RepairTask[]
+  Issuance        Issuance[]
+}
+
+model Make {
+  id        String      @id @default(uuid()) /// @zod.string.noDefault()
+  name      String      @unique
+  Equipment Equipment[]
+}
+
+model Model {
+  id        String      @id @default(uuid()) /// @zod.string.noDefault()
+  name      String      @unique
+  Equipment Equipment[]
+}
+
+model EquipmentType {
+  id        String      @id @default(uuid()) /// @zod.string.noDefault()
+  name      String      @unique
+  Equipment Equipment[]
+}
+
+enum MeterReading {
+  None
+  Hours
+  Kilometers
+  Miles
+  Date
+}
+
+model Item {
+  id          String       @id @default(uuid()) /// @zod.string.noDefault()
+  partNumber  String       @unique
+  name        String?
+  description String?
+  category    Categories?  @relation(fields: [categoryId], references: [id])
+  categoryId  String? // Foreign key field
+  quantity    Int // Keep track of total quantity
+  unitType    UnitType?    @relation(fields: [unitTypeId], references: [id])
+  unitTypeId  String?
+  vendors     ItemVendor[]
+  inventory   Inventory[]
+}
+
+model UnitType {
+  id   String @id @default(uuid()) /// @zod.string.noDefault()
+  name String
+  item Item[]
+}
+
+model Categories {
+  id   String @id @default(uuid()) /// @zod.string.noDefault()
+  name String
+  item Item[]
+}
+
+model Warehouse {
+  id   String @id @default(uuid()) /// @zod.string.noDefault()
+  name String
+
+  tax1          Float?
+  tax2          Float?
+  inventory     Inventory[]
+  purchaseOrder PurchaseOrder[]
+}
+
+model Vendor {
+  id            String          @id @default(uuid()) /// @zod.string.noDefault()
+  name          String          @unique /// @zod.string.min(1, { message: t('nameRequired') })
+  contact       String
+  vendorType    VendorType /// @zod.custom.use(z.nativeEnum(VendorType).refine((val) => !!val, { message: "Please select a vendor type" }))
+  phone         String /// @zod.import(["import { isValidPhoneNumber } from 'react-phone-number-input'"]).custom.use(z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }))
+  keywords      String
+  address       String
+  items         ItemVendor[]
+  purchaseOrder PurchaseOrder[]
+  receipt       Receipt[]
+}
+
+enum VendorType {
+  Supplier
+  Distributor
+  Manufacturer
+}
+
+model ItemVendor {
+  id               String        @id @default(uuid()) /// @zod.string.noDefault()
+  itemId           String
+  vendorId         String? // Rename supplierId to vendorId
+  manufacturerId   String?
+  item             Item          @relation(fields: [itemId], references: [id])
+  vendor           Vendor?       @relation(fields: [vendorId], references: [id]) // Update relation to Vendor
+  manufacturer     Manufacturer? @relation(fields: [manufacturerId], references: [id])
+  vendorPartNumber String?
+  barcode          String?
+}
+
+model Manufacturer {
+  id     String       @id @default(uuid()) /// @zod.string.noDefault()
+  name   String       @unique
+  vendor ItemVendor[]
+}
+
+model Inventory {
+  id              String     @id @default(uuid()) /// @zod.string.noDefault()
+  quantity        Float
+  reorderQuantity Float
+  lowStockLevel   Float
+  unitCostDollar  Float
+  location        String
+  itemId          String
+  warehouseId     String
+  unitCostVES     Float
+  item            Item       @relation(fields: [itemId], references: [id])
+  warehouse       Warehouse  @relation(fields: [warehouseId], references: [id])
+  receipts        Receipt[]
+  issuances       Issuance[]
+  taskItem        TaskItem[]
+}
+
+model PurchaseOrder {
+  id           String     @id @default(uuid()) /// @zod.string.noDefault()
+  poNumber     Int        @default(autoincrement())
+  dateOpened   DateTime
+  dateRequired DateTime?
+  shipVia      Shipping?
+  invoice      String?
+  workOrder    Int?
+  notes        String?
+  poStatus     StatusType
+  taxBy        TaxBy
+  tax1         Float
+  tax2         Float
+  freight      Float
+
+  buyerId     String? //Foreign key field for Warehouse
+  termsId     String?
+  warehouseId String // Foreign key field for Warehouse
+  vendorId    String? // Foreign key field for Vendor
+
+  terms     Terms?    @relation(fields: [termsId], references: [id])
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  vendor    Vendor?   @relation(fields: [vendorId], references: [id])
+  buyer     Employee? @relation(fields: [buyerId], references: [id])
+  receipts  Receipt[]
+}
+
+model Receipt {
+  id          String    @id @default(uuid()) /// @zod.string.noDefault()
+  date        DateTime?
+  description String?
+  invoice     String?
+
+  qtyOrdered   Int
+  qtyReceived  Int
+  qtyRemaining Int
+
+  unitCostDollar Float
+  unitCostVES    Float
+  tax1           Float?
+  tax2           Float?
+  createdAt      DateTime
+  updatedAt      DateTime
+
+  inventoryId     String
+  vendorId        String?
+  purchaseOrderId String?
+
+  inventory     Inventory      @relation(fields: [inventoryId], references: [id])
+  vendor        Vendor?        @relation(fields: [vendorId], references: [id])
+  purchaseOrder PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+
+  issuances Issuance[] // One-to-many relationship with Issuance
+}
+
+model Issuance {
+  id             String   @id @default(uuid()) /// @zod.string.noDefault()
+  date           DateTime
+  description    String?
+  qtyIssued      Int
+  unitCostDollar Float?
+  unitCostVES    Float?
+
+  createdAt DateTime?
+  updatedAt DateTime?
+
+  inventoryId String
+  receiptId   String
+  equipmentId String?
+
+  inventory       Inventory      @relation(fields: [inventoryId], references: [id])
+  equipment       Equipment?     @relation(fields: [equipmentId], references: [id])
+  receipt         Receipt        @relation(fields: [receiptId], references: [id])
+  WorkOrderTask   WorkOrderTask? @relation(fields: [workOrderTaskId], references: [id])
+  workOrderTaskId String?
+}
+
+model Terms {
+  id            String          @id @default(uuid()) /// @zod.string.noDefault()
+  name          String          @unique
+  PurchaseOrder PurchaseOrder[]
+}
+
+enum StatusType {
+  Requisition
+  Ordered
+  Received_Partial
+  Received
+  Close
+}
+
+enum TaxBy {
+  Both
+  None
+  One
+  Two
+}
+
+enum Shipping {
+  Air
+  Courier
+  Expedited
+  Ground
+  Next_Day
+}
+
+model WorkOrder {
+  id            String          @id @default(uuid()) /// @zod.string.noDefault()
+  woNumber      Int             @default(autoincrement())
+  scheduled     DateTime
+  due           DateTime?
+  dateStarted   DateTime?
+  dateCompleted DateTime?
+  priority      Priority
+  workOrderType String?
+  notes         String?
+  woStatus      WorkOrderStatus
+  employeeId    String?
+  employee      Employee?       @relation(fields: [employeeId], references: [id])
+  equipmentId   String
+  equipment     Equipment       @relation(fields: [equipmentId], references: [id])
+  tasks         WorkOrderTask[] // Relation to tasks through WorkOrderTask
+  tax1          Float
+  tax2          Float
+
+  primaryMeterReading   Float? // Current value of the primary meter
+  secondaryMeterReading Float? // Current value of the secondary meter
+}
+
+model Labor {
+  id              String         @id @default(uuid()) /// @zod.string.noDefault()
+  date            DateTime
+  hours           Float
+  laborRate       Float
+  employeeId      String
+  employee        Employee       @relation(fields: [employeeId], references: [id])
+  WorkOrderTask   WorkOrderTask? @relation(fields: [workOrderTaskId], references: [id])
+  workOrderTaskId String?
+}
+
+enum Priority {
+  Low
+  Normal
+  High
+  Urgent
+}
+
+model WorkOrderTask {
+  id          String    @id @default(uuid())  /// @zod.string.noDefault()
+  completed   Boolean
+  workOrderId String // Reference to the WorkOrder
+  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
+
+  repairTaskId String? // Reference to the Equipment model
+  repairTask   RepairTask? @relation(fields: [repairTaskId], references: [id])
+
+  recurringTaskId String? // Reference to the Equipment model
+  recurringTask   RecurringTask? @relation(fields: [recurringTaskId], references: [id])
+
+  labor Labor[]
+  parts Issuance[] // Relation to the parts required for this recurring task
+}
+
+model RecurringTask {
+  id         String     @id @default(uuid()) /// @zod.string.noDefault()
+  taskStatus TaskStatus
+  taskType   TaskType
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id])
+
+  equipmentId String // Reference to the Equipment model
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+
+  maintenanceTemplate   MaintenanceTemplate? @relation(fields: [maintenanceTemplateId], references: [id])
+  maintenanceTemplateId String?
+  taskTracking          TaskTracking?
+  workOrderTask         WorkOrderTask[]
+  taskItem              TaskItem[]
+}
+
+model RepairTask {
+  id          String    @id @default(uuid()) /// @zod.string.noDefault()
+  equipmentId String // Reference to the Equipment model
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  taskType    TaskType
+  priority    Priority
+  notes       String?
+  completed   Boolean
+
+  taskId       String
+  employeeId   String?
+  repairTypeId String?
+
+  task          Task            @relation(fields: [taskId], references: [id])
+  employee      Employee?       @relation(fields: [employeeId], references: [id])
+  repairType    RepairType?     @relation(fields: [repairTypeId], references: [id])
+  taskTracking  TaskTracking?
+  workOrderTask WorkOrderTask[]
+}
+
+model RepairType {
+  id         String       @id @default(uuid()) /// @zod.string.noDefault()
+  name       String       @unique
+  repairTask RepairTask[]
+}
+
+model Task {
+  id                    String               @id @default(uuid()) /// @zod.string.noDefault()
+  description           String // General description of the task
+  RecurringTask         RecurringTask[]
+  repairTask            RepairTask[]
+  maintenanceTemplate   MaintenanceTemplate? @relation(fields: [maintenanceTemplateId], references: [id])
+  maintenanceTemplateId String?
+}
+
+model TaskItem {
+  id              String        @id @default(uuid()) /// @zod.string.noDefault()
+  quantity        Int // Quantity of the item required for the task
+  recurringTaskId String // Reference to the RecurringTask model
+  recurringTask   RecurringTask @relation(fields: [recurringTaskId], references: [id])
+  inventoryId     String // Reference to the Item model
+  inventory       Inventory     @relation(fields: [inventoryId], references: [id])
+}
+
+enum TaskType {
+  Recurring
+  Repair
+  Renewal
+}
+
+enum TaskStatus {
+  Active
+  Inactive
+}
+
+enum WorkOrderStatus {
+  Open
+  In_Progress
+  On_Hold
+  Complete
+}
+
+model TaskTracking {
+  id String @id @default(uuid()) /// @zod.string.noDefault()
+
+  // Shared tracking fields (for both recurring and repair tasks)
+
+  // For tracking by date
+  trackByDate       Boolean? // Indicates if tracking is by date
+  trackByDateEvery  Boolean?
+  dateInterval      Int? // Interval in days for recurring tasks
+  dateAdvanceNotice Int? // Number of days in advance to notify before the task is due
+  dateNextDue       DateTime?
+  dateLastPerformed DateTime?
+
+  // For tracking by primary meter values
+  trackByPrimary       Boolean? // Indicates if tracking is by primary meter
+  trackByPrimaryEvery  Boolean?
+  primaryMeterType     MeterReading? // Type of primary meter (e.g., Hours, Kilometers, Miles)
+  primaryInterval      Float? // Interval for tracking by primary meter (e.g., every 5000 miles)
+  primaryAdvanceNotice Float? // Number of units (hours, kilometers, miles) in advance to notify before the task is due
+  primaryNextDue       Float?
+  primaryLastPerformed Float? // Last recorded value of the primary meter when the task was performed
+
+  // For tracking by secondary meter values
+  trackBySecondary       Boolean? // Indicates if tracking is by secondary meter
+  trackBySecondaryEvery  Boolean?
+  secondaryMeterType     MeterReading? // Type of secondary meter (e.g., Hours, Kilometers, Miles)
+  secondaryInterval      Float? // Interval for tracking by secondary meter (e.g., every 5000 miles)
+  secondaryAdvanceNotice Float? // Number of units (hours, kilometers, miles) in advance to notify before the task is due
+  secondaryNextDue       Float?
+  secondaryLastPerformed Float? // Last recorded value of the secondary meter when the task was performed
+
+  // Relations to either RecurringTask or RepairTask
+  recurringTaskId String?        @unique // Foreign key to RecurringTask
+  recurringTask   RecurringTask? @relation(fields: [recurringTaskId], references: [id])
+
+  repairTaskId  String?     @unique
+  repairTask    RepairTask? @relation(fields: [repairTaskId], references: [id], onDelete: Cascade)
+  DateNextDue      DateNextDue[]
+  PrimaryNextDue   PrimaryNextDue[]
+  SecondaryNextDue SecondaryNextDue[]
+}
+
+model DateNextDue {
+  id             String       @id @default(uuid()) /// @zod.string.noDefault()
+  taskTrackingId String
+  taskTracking   TaskTracking @relation(fields: [taskTrackingId], references: [id])
+
+  dateNextDue DateTime
+}
+
+model PrimaryNextDue {
+  id             String       @id @default(uuid()) /// @zod.string.noDefault()
+  taskTrackingId String
+  taskTracking   TaskTracking @relation(fields: [taskTrackingId], references: [id])
+
+  primaryNextDue Float
+}
+
+model SecondaryNextDue {
+  id             String       @id @default(uuid()) /// @zod.string.noDefault()
+  taskTrackingId String
+  taskTracking   TaskTracking @relation(fields: [taskTrackingId], references: [id])
+
+  secondaryNextDue Float
+}
+
+model MaintenanceTemplate {
+  id        String          @id @default(uuid()) /// @zod.string.noDefault()
+  name      String // Name of the template
+  tasks     Task[] // Tasks included in the template
+  equipment RecurringTask[] // Links to equipment-specific recurring tasks
+}
+
+model Employee {
+  id             String          @id @default(uuid()) /// @zod.string.noDefault()
+  firstName      String /// @zod.string.min(1, { message: "First name must not be empty" })
+  lastName       String /// @zod.string.min(1, { message: "Last name must not be empty" })
+  phone          String /// @zod.import(["import { isValidPhoneNumber } from 'react-phone-number-input'"]).custom.use(z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }))
+  employeeStatus EmployeeStatus
+  laborRate      Float
+  loginAllowed   Boolean
+  email          String?         @unique
+  adminType      AdminType?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  purchaseOrder  PurchaseOrder[]
+  workOrder      WorkOrder[]
+  repairTask     RepairTask[]
+  Labor          Labor[]
+}
+
+enum AdminType {
+  Admin
+  Standard
+  Operator
+}
+
+enum EmployeeStatus {
+  Active
+  Inactive
+}

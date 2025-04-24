@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "es5", // to use set in inventory page
+    "downlevelIteration": true, // to use set in inventory page
+    "lib": ["dom", "dom.iterable", "esnext", "ES7"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/api/route.ts", "src/app/movies.js"],
+  "exclude": ["node_modules"]
+}

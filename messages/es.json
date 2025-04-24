@@ -1,0 +1,48 @@
+{
+  "Dashboard": {
+    "title": "Panel"
+  },
+  "LocaleSwitcher": {
+    "es": "Español",
+    "en": "Inglés",
+    "label": "Idioma"
+  },
+  "DashboardNavLinks": {
+    "home": "Inicio",
+    "equipment": "Equipo",
+    "inventory": "Inventario",
+    "purchaseorders": "Ordenes de Compra",
+    "workorders": "Ordenes de Trabajo",
+    "employees": "Empleados",
+    "vendors": "Proveedores"
+  },
+  "Dropdown": {
+    "view" : "Ver",
+    "edit" : "Editar",
+    "delete" : "Eliminar"
+  },
+  "Vendor": {    
+    "vendors": "Proveedores",
+    "placeholderVendor": "Buscar proveedor...",
+    "createVendor": "Crear Proveedor",
+    "updateVendor": "Actualizar Proveedor",
+    "editVendor": "Editar Proveedor",
+    "deleteVendor": "Eliminar Proveedor",
+    "vendor": "Proveedor",
+    "name": "Nombre",
+    "placeholderName": "Ingrese el nombre del proveedor",
+    "contact": "Contacto",
+    "placeholderContact": "Ingrese el punto de contacto",
+    "vendorTypeTitle": "Tipo de Proveedor",
+    "vendorType": {
+      "Supplier": "Proveedor",
+      "Distributor": "Distribuidor",
+      "Manufacturer": "Fabricante"
+    },
+    "phone": "Teléfono",
+    "keywords": "Palabras clave",
+    "placeholderKeywords": "Ingrese las palabras clave",
+    "address": "Dirección",
+    "placeholderAddress": "Ingrese la dirección"
+  }
+}
