@@ -4,7 +4,7 @@ import { CSSProperties } from 'react';
 import { Control, Controller, FieldValues, Path, useFormContext } from 'react-hook-form';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-
+import { useTranslations } from 'next-intl';
 
 interface TelephoneInputProps<TFieldValues extends FieldValues> {
   name: Path<TFieldValues>;
@@ -29,6 +29,8 @@ const TelephoneInput = <TFieldValues extends FieldValues>({
 }: TelephoneInputProps<TFieldValues>) => {
   const { control } = useFormContext()
   const defaultValue = control._defaultValues[name]
+  const t = useTranslations('Vendor');
+
   return (
     <div className={className} style={style}>
       <div className={labelClassName}>
@@ -42,24 +44,30 @@ const TelephoneInput = <TFieldValues extends FieldValues>({
       <div className="flex w-full">
         {isEditMode ? (
           <Controller
-          name={name}
-          control={control}
-          render={({ field, fieldState: {error} }) => (
-            <div className="flex flex-col" > 
-              <PhoneInput
-                {...field}
-                id={name}
-                numberInputProps={{
-                  className: "flex w-full cursor-pointer rounded-md border border-gray-200 text-sm outline-2 placeholder:text-gray-500", // my Tailwind classes
-                }}  
-                international
-                defaultCountry="US"
-                placeholder="Enter phone number"
-              />
-              {error && <span className="mt-2 text-sm text-red-600">{error.message}</span>}
-            </div>
-          )}
-        />
+            name={name}
+            control={control}
+            rules={{ 
+              // Explicitly set the required message using the translation
+              required: required ? t('validation.phoneRequired') : false 
+            }} 
+            render={({ field, fieldState: {error} }) => (
+              <div className="flex flex-col w-full" > 
+                <div className={`flex w-full ${error ? 'border-red-500' : 'border-gray-200'} rounded-md border`}>
+                  <PhoneInput
+                    {...field}
+                    id={name}
+                    numberInputProps={{
+                      className: "flex w-full cursor-pointer text-sm outline-2 placeholder:text-gray-500 border-none", 
+                    }}  
+                    international
+                    defaultCountry="US"
+                    placeholder={t("placeholderPhone")}
+                  />
+                </div>
+                {error && <span className="mt-2 text-sm text-red-600">{error.message}</span>}
+              </div>
+            )}
+          />
         ):(
           <PhoneInput
             numberInputProps={{

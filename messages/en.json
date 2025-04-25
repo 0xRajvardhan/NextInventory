@@ -40,9 +40,17 @@
       "Manufacturer": "Manufacturer"
     },
     "phone": "Telephone",
+    "placeholderPhone": "Enter phone number",
     "keywords": "Keywords",
     "placeholderKeywords": "Enter keywords",
     "address": "Address",
-    "placeholderAddress": "Enter address"
+    "placeholderAddress": "Enter address",
+    "validation": {
+      "nameRequired": "Name is required",
+      "vendorTypeRequired": "Please specify a valid vendor type",
+      "phoneRequired": "Phone number is required",
+      "phoneInvalid": "Invalid phone number",
+      "vendorExists": "A vendor with this name already exists"
+    }
   }
 }

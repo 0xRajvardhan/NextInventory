@@ -40,9 +40,17 @@
       "Manufacturer": "Fabricante"
     },
     "phone": "Teléfono",
+    "placeholderPhone": "Ingrese el número de teléfono",
     "keywords": "Palabras clave",
     "placeholderKeywords": "Ingrese las palabras clave",
     "address": "Dirección",
-    "placeholderAddress": "Ingrese la dirección"
+    "placeholderAddress": "Ingrese la dirección",
+    "validation": {
+      "nameRequired": "El nombre es requerido",
+      "vendorTypeRequired": "Por favor especifique un tipo de proveedor válido",
+      "phoneRequired": "El número de teléfono es requerido",
+      "phoneInvalid": "Número de teléfono inválido",
+      "vendorExists": "Ya existe un proveedor con este nombre"
+    }
   }
 }
