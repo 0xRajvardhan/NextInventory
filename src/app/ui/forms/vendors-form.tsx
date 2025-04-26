@@ -3,7 +3,7 @@
 import { Button } from "../components/button";
 import React from "react";
 import "react-phone-number-input/style.css";
-
+import { useEffect } from "react";
 import SelectInput from "../components/RHF/selectInput";
 import TextInput from "../components/RHF/textInput";
 import TelephoneInput from "../components/RHF/telephoneInput";
@@ -31,7 +31,7 @@ export default function VendorsForm({
 
   const t = useTranslations("Vendor");
 
-  // Create a localized schema with translated messages
+  // Created a localized schema with translated messages
   const LocalizedVendorSchema = z.object({
     vendorType: z
       .object({
@@ -86,9 +86,15 @@ export default function VendorsForm({
     handleSubmit,
     setError,
     formState: { isSubmitting },
+    trigger,
   } = methods;
 
   const router = useRouter();
+
+  // useEffect to revalidate when language changes
+  useEffect(() => {
+    trigger(); // revalidate all fields
+  }, [t]); // runs whenever translations update
 
   const handleSave = async (data: VendorFormValues) => {
     try {
