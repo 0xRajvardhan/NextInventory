@@ -12,23 +12,16 @@ export default async function Page({
   params: { id: string }
 }) {
   const id = params.id;
-
-    const supabase = createClient();
+  const supabase = await createClient();
   
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const { data: { session }, error } = await supabase.auth.getSession();
   
-      console.log(user);
-    
-      if (!user) {
-        return redirect("/login");
-      }
-  
+  if (error || !session) {
+    return redirect("/login");
+  }
 
   const [ vendor ] = await Promise.all([
     fetchVendorById(id),
-
   ]);
 
   if (!vendor) {
@@ -49,9 +42,7 @@ export default async function Page({
           },
         ]}
       />
-      <VendorsForm
-        vendor = {vendor}
-      />
+      <VendorsForm vendor={vendor} />
     </main>
   );
 }
