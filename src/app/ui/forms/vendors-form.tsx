@@ -17,7 +17,7 @@ import { Spinner } from "flowbite-react";
 import { VendorFormSchema, VendorFormValues } from "@/app/lib/definitions";
 import { enumToOptions } from "@/app/lib/utils";
 import { useTranslations } from "next-intl";
-import { createVendor } from "@/app/lib/actions/vendor"; // Adjust the import path as necessary
+import { createVendor, updateVendor } from "@/app/lib/actions/vendor"; // Adjust the import path as necessary
 import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
 
@@ -98,27 +98,27 @@ export default function VendorsForm({
 
   const handleSave = async (data: VendorFormValues) => {
     try {
-      const response = await createVendor(data);
-  
-      if (!response?.success) {
-        console.log("Server returned errors:", response);
-        
-        response.errors.forEach((error: { field: string; message: string }) => {
-          if (error.field && error.message) {
-            setError(error.field as keyof VendorFormValues, {
-              type: "manual",
-              message: error.field === 'name' && error.message.includes('already exists') 
-                ? t('validation.vendorExists')
-                : error.message,
-            });
-          }
-        });
+      const result = isEditMode 
+        ? await updateVendor(data)
+        : await createVendor(data);
+
+      if (result.success) {
+        router.push("/dashboard/vendors");
+        router.refresh();
       } else {
-        console.log(response);
-        // router.push(`/dashboard/vendors/${response?.id}`); // Redirect after successful creation/update
+        result.errors.forEach((error) => {
+          setError(error.field as keyof VendorFormValues, {
+            type: "manual",
+            message: error.message,
+          });
+        });
       }
     } catch (error) {
-      console.error("Error while submitting form data:", error);
+      console.error("Error saving vendor:", error);
+      setError("general", {
+        type: "manual",
+        message: "An unexpected error occurred. Please try again.",
+      });
     }
   };
   
