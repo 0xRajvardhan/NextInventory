@@ -1,15 +1,9 @@
 "use client";
 
 import React, { CSSProperties, useEffect } from "react";
-import {
-  Controller,
-  FieldValues,
-  Path,
-  useFormContext
-} from "react-hook-form";
+import { Controller, FieldValues, Path, useFormContext } from "react-hook-form";
 import Select, { GroupBase, OptionsOrGroups } from "react-select";
 import { useLocale, useTranslations } from "next-intl";
-
 
 interface Option {
   value: string;
@@ -18,7 +12,7 @@ interface Option {
 
 interface SelectInputProps<TFieldValues extends FieldValues> {
   name: Path<TFieldValues>;
-  options: OptionsOrGroups<Option, GroupBase<Option>>; // Updated to use OptionsOrGroups type
+  options: OptionsOrGroups<Option, GroupBase<Option>>;
   placeholder?: string;
   labelText?: string;
   className?: string;
@@ -45,26 +39,24 @@ const SelectInput = <TFieldValues extends FieldValues>({
   isDisabled = false,
   required = false,
   isObject = true,
-  isEditMode
+  isEditMode,
 }: SelectInputProps<TFieldValues>) => {
-
   const { control, getValues, setValue } = useFormContext();
-  
-  // Get default value from the control
-  const defaultValue = getValues(name);
 
-  const t = useTranslations('Vendor');  
+  const t = useTranslations("Vendor");
   const locale = useLocale();
 
+  const defaultValue = getValues(name);
 
   useEffect(() => {
-    // Make sure that the value you're setting matches the expected type for the field
-    setValue(name, {
-      ...defaultValue,
-      label: t(`${name}.${defaultValue.value}`),
-    });
+    if (defaultValue && defaultValue.value) {
+      setValue(name, {
+        ...defaultValue,
+        label: t(`${name}.${defaultValue.value}`),
+      });
+    }
   }, [locale, setValue, defaultValue, t, name]);
-  
+
   return (
     <div className={className} style={style}>
       <div className={labelClassName}>
@@ -80,49 +72,52 @@ const SelectInput = <TFieldValues extends FieldValues>({
         )}
       </div>
       <div className="flex w-full">
-        {isEditMode ? (
-          <Controller
-            name={name}
-            control={control}
-            render={({ field, fieldState: { error } }) => (
-              <div className="flex flex-col w-full">
-                <Select
-                  {...field} // RHF field props
-                  inputId={name}
-                  instanceId={name}
-                  placeholder={placeholder}
-                  isClearable={isClearable}
-                  isDisabled={isDisabled}
-                  menuPosition="fixed"
-                  options={options}
-                  styles={{
-                    control: (baseStyles) => ({
-                      ...baseStyles,
-                      width: "100%",
-                      fontSize: "14px",
-                      color: "black",
-                    }),
-                    menu: (baseStyles) => ({
-                      ...baseStyles,
-                      width: "100%",
-                      fontSize: "14px",
-                      color: "black",
-                    }),
-                    option: (baseStyles) => ({
-                      ...baseStyles,
-                      width: "100%",
-                      fontSize: "14px",
-                      color: "black",
-                    }),
-                  }}
-                />
-                {error && <span className="mt-2 text-sm text-red-600">{error.message}</span>}
-              </div>
-            )}
-          />
-        ):(
-          <div className="flex w-full text-sm">{ t(`${name}.${defaultValue.value}`)}</div>
-        )}
+        <Controller
+          name={name}
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <div className="flex flex-col w-full">
+              <Select
+                {...field}
+                inputId={name}
+                instanceId={name}
+                placeholder={placeholder}
+                isClearable={isClearable}
+                isDisabled={isDisabled} // Removed isEditMode condition
+                menuPosition="fixed"
+                options={options}
+                value={field.value}
+                onChange={field.onChange}
+                styles={{
+                  control: (baseStyles) => ({
+                    ...baseStyles,
+                    width: "100%",
+                    fontSize: "14px",
+                    color: "black",
+                    backgroundColor: "white", // Always white background
+                  }),
+                  menu: (baseStyles) => ({
+                    ...baseStyles,
+                    width: "100%",
+                    fontSize: "14px",
+                    color: "black",
+                  }),
+                  option: (baseStyles) => ({
+                    ...baseStyles,
+                    width: "100%",
+                    fontSize: "14px",
+                    color: "black",
+                  }),
+                }}
+              />
+              {error && (
+                <span className="mt-2 text-sm text-red-600">
+                  {error.message}
+                </span>
+              )}
+            </div>
+          )}
+        />
       </div>
     </div>
   );

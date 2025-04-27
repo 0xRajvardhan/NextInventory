@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { CSSProperties } from 'react';
-import { Controller, FieldValues, Path, useFormContext } from 'react-hook-form';
+import { CSSProperties } from "react";
+import { Controller, FieldValues, Path, useFormContext } from "react-hook-form";
 
 interface TextInputProps<TFieldValues extends FieldValues> {
   name: Path<TFieldValues>;
@@ -24,21 +24,19 @@ const TextInput = <TFieldValues extends FieldValues>({
   style,
   labelStyle,
   required,
-  isEditMode
+  isEditMode,
 }: TextInputProps<TFieldValues>) => {
-  const { control, getValues } = useFormContext()
+  const { control, getValues } = useFormContext();
   const defaultValue = getValues(name);
-
-    // If we're not in edit mode and there's no default value,
-  // don't render anything.
-  if (!isEditMode && !defaultValue) {
-    return null;
-  }
 
   return (
     <div className={className} style={style}>
       <div className={labelClassName}>
-        {required && <p className="text-red-500"><span>*</span></p>}
+        {required && (
+          <p className="text-red-500">
+            <span>*</span>
+          </p>
+        )}
         {labelText && (
           <label htmlFor={name} style={labelStyle}>
             {labelText}
@@ -46,26 +44,26 @@ const TextInput = <TFieldValues extends FieldValues>({
         )}
       </div>
       <div className="flex w-full">
-        {isEditMode ? (
-          <Controller
-            name={name}
-            control={control}
-            render={({ field , fieldState: {error}}) => (
-              <div className="flex flex-col w-full">
-                <input
-                  id={name}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  value={field.value || ''}
-                  placeholder={placeholder}
-                  className="w-full rounded-md border py-2 pr-2 pl-4 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:border-blue-900"
-                />
-                {error && <span className="mt-2 text-sm text-red-600">{error.message}</span>}
-              </div>
-            )}
-          />
-        ) :(
-          <div className="text-sm">{defaultValue}</div>
-        )}
+        <Controller
+          name={name}
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <div className="flex flex-col w-full">
+               <input
+               id={name}
+               onChange={(e) => field.onChange(e.target.value)}
+               value={field.value ?? ""}
+               placeholder={placeholder}
+               className={`w-full rounded-md border py-2 pr-2 pl-4 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:border-blue-900`}
+             />
+              {error && (
+                <span className="mt-2 text-sm text-red-600">
+                  {error.message}
+                </span>
+              )}
+            </div>
+          )}
+        />
       </div>
     </div>
   );

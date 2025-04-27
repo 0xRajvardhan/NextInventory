@@ -17,7 +17,7 @@ export default async function Page() {
         ]}
       />
        <VendorsForm
-        isEditMode = {true}
+        // isEditMode = {true}
        /> 
     </main>
   );
