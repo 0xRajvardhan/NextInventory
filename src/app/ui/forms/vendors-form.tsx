@@ -20,7 +20,6 @@ import { createVendor, updateVendor } from "@/app/lib/actions/vendor"; // Adjust
 import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
 
-
 export default function VendorsForm({
   vendor,
   isEditMode = false,
@@ -99,11 +98,14 @@ export default function VendorsForm({
   useEffect(() => {
     if (firstRenderRef.current) {
       firstRenderRef.current = false;
-      return; // Don't trigger validation on first render
+      return;
     }
 
-    trigger(); // Revalidate fields on language change after first load
-  }, [t, trigger]);
+    // Only revalidate if there are already validation errors
+    if (Object.keys(methods.formState.errors).length > 0) {
+      trigger();
+    }
+  }, [t, trigger, methods.formState.errors]);
 
   const handleSave = async (data: VendorFormValues) => {
     try {
@@ -235,15 +237,15 @@ export default function VendorsForm({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-  {isSubmitting ? (
-    <div className="flex items-center gap-2">
-      <Spinner />
-      Saving...
-    </div>
-  ) : (
-    t("createVendor")
-  )}
-</Button>
+                {isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <Spinner />
+                    Saving...
+                  </div>
+                ) : (
+                  t("createVendor")
+                )}
+              </Button>
             </>
           )}
         </div>
