@@ -29,6 +29,8 @@ export default function VendorsForm({
 }) {
   const t = useTranslations("Vendor");
 
+  const [submitClicked, setSubmitClicked] = React.useState(false);
+
   // Created a localized schema with translated messages
   const LocalizedVendorSchema = z.object({
     vendorType: z
@@ -101,11 +103,10 @@ export default function VendorsForm({
       return;
     }
 
-    // Only revalidate if there are already validation errors
-    if (Object.keys(methods.formState.errors).length > 0) {
+    if (submitClicked && Object.keys(methods.formState.errors).length > 0) {
       trigger();
     }
-  }, [t, trigger, methods.formState.errors]);
+  }, [t, trigger, methods.formState.errors, submitClicked]);
 
   const handleSave = async (data: VendorFormValues) => {
     try {
@@ -140,7 +141,12 @@ export default function VendorsForm({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(handleSave)}>
+      <form
+        onSubmit={(e) => {
+          setSubmitClicked(true);
+          handleSubmit(handleSave)(e);
+        }}
+      >
         <div className="w-full">
           <div className="grid text-sm grid-cols-1 w-full xl:w-1/3 rounded-md bg-gray-50 p-6">
             <TextInput
