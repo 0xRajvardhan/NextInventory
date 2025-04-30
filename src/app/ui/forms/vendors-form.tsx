@@ -102,11 +102,11 @@ export default function VendorsForm({
       firstRenderRef.current = false;
       return;
     }
-
-    if (submitClicked && Object.keys(methods.formState.errors).length > 0) {
+  
+    if (submitClicked) {
       trigger();
     }
-  }, [t, trigger, methods.formState.errors, submitClicked]);
+  }, [submitClicked, trigger]);  
 
   const handleSave = async (data: VendorFormValues) => {
     try {
