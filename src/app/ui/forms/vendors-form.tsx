@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "flowbite-react";
 import { VendorFormSchema, VendorFormValues } from "@/app/lib/definitions";
 import { enumToOptions } from "@/app/lib/utils";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createVendor, updateVendor } from "@/app/lib/actions/vendor"; // Adjust the import path as necessary
 import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
@@ -27,15 +27,41 @@ export default function VendorsForm({
   vendor?: VendorFormValues;
   isEditMode?: boolean;
 }) {
+  const [submitClicked, setSubmitClicked] = React.useState(false);
+
   const t = useTranslations("Vendor");
 
-  const [submitClicked, setSubmitClicked] = React.useState(false);
+  const locale = useLocale();
+
+  const options = enumToOptions(VendorType)
+    .filter((option) => {
+      if (locale === "en") {
+        return ["Supplier", "Distributor", "Manufacturer"].includes(
+          option.value
+        );
+      }
+      if (locale === "es") {
+        return ["Proveedor", "Distribuidor", "Fabricante"].includes(
+          option.value
+        );
+      }
+      return true;
+    })
+    .map((option) => ({
+      value: option.value,
+      label: t(`vendorType.${option.value}`),
+    }));
+
+  const allowedVendorTypes =
+    locale === "es"
+      ? ["Proveedor", "Distribuidor", "Fabricante"]
+      : ["Supplier", "Distributor", "Manufacturer"];
 
   // Created a localized schema with translated messages
   const LocalizedVendorSchema = z.object({
     vendorType: z
       .object({
-        value: z.enum(["Supplier", "Distributor", "Manufacturer"]),
+        value: z.enum(allowedVendorTypes as [string, ...string[]]),
         label: z.string(),
       })
       .nullable()
@@ -62,8 +88,10 @@ export default function VendorsForm({
     name: "",
     contact: "",
     vendorType: {
-      value: "Supplier",
-      label: t("vendorType.Supplier") as VendorType,
+      value: locale === "es" ? "Proveedor" : "Supplier",
+      label: t(
+        `vendorType.${locale === "es" ? "Proveedor" : "Supplier"}`
+      ) as VendorType,
     },
     phone: "",
     keywords: "",
@@ -102,11 +130,11 @@ export default function VendorsForm({
       firstRenderRef.current = false;
       return;
     }
-  
+
     if (submitClicked) {
       trigger();
     }
-  }, [submitClicked, trigger]);  
+  }, [submitClicked, trigger]);
 
   const handleSave = async (data: VendorFormValues) => {
     try {
@@ -173,10 +201,7 @@ export default function VendorsForm({
               labelText={t("vendorTypeTitle")}
               labelClassName="flex w-36 text-right justify-end items-center text-sm font-medium mr-6"
               name="vendorType"
-              options={enumToOptions(VendorType).map((option) => ({
-                value: option.value,
-                label: t(`vendorType.${option.value}`),
-              }))}
+              options={options}
               isEditMode={isEditMode}
               isClearable={false}
             />

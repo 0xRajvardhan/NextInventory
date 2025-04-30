@@ -17,11 +17,11 @@
     "vendors": "Proveedores"
   },
   "Dropdown": {
-    "view" : "Ver",
-    "edit" : "Editar",
-    "delete" : "Eliminar"
+    "view": "Ver",
+    "edit": "Editar",
+    "delete": "Eliminar"
   },
-  "Vendor": {    
+  "Vendor": {
     "vendors": "Proveedores",
     "placeholderVendor": "Buscar proveedor...",
     "createVendor": "Crear Proveedor",
@@ -34,11 +34,16 @@
     "contact": "Contacto",
     "placeholderContact": "Ingrese el punto de contacto",
     "vendorTypeTitle": "Tipo de Proveedor",
+
     "vendorType": {
       "Supplier": "Proveedor",
       "Distributor": "Distribuidor",
-      "Manufacturer": "Fabricante"
+      "Manufacturer": "Fabricante",
+      "Proveedor": "Proveedor",
+      "Distribuidor": "Distribuidor",
+      "Fabricante": "Fabricante"
     },
+
     "phone": "Teléfono",
     "placeholderPhone": "Ingrese el número de teléfono",
     "keywords": "Palabras clave",

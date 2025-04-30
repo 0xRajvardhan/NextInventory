@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
-// import { isValidPhoneNumber } from 'libphonenumber-js';
-import { phoneNumberSchema } from './customValidators';
+import { isValidPhoneNumber } from 'libphonenumber-js';
+
 /////////////////////////////////////////
 // HELPER FUNCTIONS
 /////////////////////////////////////////
@@ -143,7 +143,7 @@ export const MeterReadingSchema = z.enum(['None','Hours','Kilometers','Miles','D
 
 export type MeterReadingType = `${z.infer<typeof MeterReadingSchema>}`
 
-export const VendorTypeSchema = z.enum(['Supplier', 'Distributor', 'Manufacturer', 'Fabricante', 'Distribuidor', 'Proveedor']);
+export const VendorTypeSchema = z.enum(['Supplier','Distributor','Manufacturer','Proveedor','Distribuidor','Fabricante']);
 
 export type VendorTypeType = `${z.infer<typeof VendorTypeSchema>}`
 
@@ -304,8 +304,7 @@ export const VendorSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
   contact: z.string(),
-  // phone: z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }),
-  phone: phoneNumberSchema,
+  phone: z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }),
   keywords: z.string(),
   address: z.string(),
 })
@@ -651,8 +650,7 @@ export const EmployeeSchema = z.object({
   id: z.string(),
   firstName: z.string().min(1, { message: "First name must not be empty" }),
   lastName: z.string().min(1, { message: "Last name must not be empty" }),
-  // phone: z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }),
-  phone: phoneNumberSchema,
+  phone: z.string().refine((value) => isValidPhoneNumber(value), { message: "Invalid phone number" }),
   laborRate: z.number(),
   loginAllowed: z.boolean(),
   email: z.string().nullable(),

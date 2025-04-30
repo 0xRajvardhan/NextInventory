@@ -21,7 +21,7 @@
     "edit": "Edit",
     "delete": "Delete"
   },
-  "Vendor": {    
+  "Vendor": {
     "vendors": "Vendors",
     "placeholderVendor": "Seach vendor...",
     "createVendor": "Create Vendor",
@@ -34,11 +34,18 @@
     "contact": "Contact",
     "placeholderContact": "Enter contact name",
     "vendorTypeTitle": "Vendor Type",
+
+
     "vendorType": {
-      "Supplier": "Supplier",
-      "Distributor": "Distributor",
-      "Manufacturer": "Manufacturer"
-    },
+  "Supplier": "Supplier",
+  "Distributor": "Distributor",
+  "Manufacturer": "Manufacturer",
+  "Proveedor": "Proveedor",
+  "Distribuidor": "Distribuidor",
+  "Fabricante": "Fabricante"
+},
+
+
     "phone": "Telephone",
     "placeholderPhone": "Enter phone number",
     "keywords": "Keywords",
