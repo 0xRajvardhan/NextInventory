@@ -27,41 +27,15 @@ export default function VendorsForm({
   vendor?: VendorFormValues;
   isEditMode?: boolean;
 }) {
-  const [submitClicked, setSubmitClicked] = React.useState(false);
-
   const t = useTranslations("Vendor");
 
-  const locale = useLocale();
-
-  const options = enumToOptions(VendorType)
-    .filter((option) => {
-      if (locale === "en") {
-        return ["Supplier", "Distributor", "Manufacturer"].includes(
-          option.value
-        );
-      }
-      if (locale === "es") {
-        return ["Proveedor", "Distribuidor", "Fabricante"].includes(
-          option.value
-        );
-      }
-      return true;
-    })
-    .map((option) => ({
-      value: option.value,
-      label: t(`vendorType.${option.value}`),
-    }));
-
-  const allowedVendorTypes =
-    locale === "es"
-      ? ["Proveedor", "Distribuidor", "Fabricante"]
-      : ["Supplier", "Distributor", "Manufacturer"];
+  const [submitClicked, setSubmitClicked] = React.useState(false);
 
   // Created a localized schema with translated messages
   const LocalizedVendorSchema = z.object({
     vendorType: z
       .object({
-        value: z.enum(allowedVendorTypes as [string, ...string[]]),
+        value: z.enum(["Supplier", "Distributor", "Manufacturer"]),
         label: z.string(),
       })
       .nullable()
@@ -88,10 +62,8 @@ export default function VendorsForm({
     name: "",
     contact: "",
     vendorType: {
-      value: locale === "es" ? "Proveedor" : "Supplier",
-      label: t(
-        `vendorType.${locale === "es" ? "Proveedor" : "Supplier"}`
-      ) as VendorType,
+      value: "Supplier",
+      label: t("vendorType.Supplier") as VendorType,
     },
     phone: "",
     keywords: "",
@@ -106,7 +78,7 @@ export default function VendorsForm({
           vendorType: vendor.vendorType
             ? {
                 value: vendor.vendorType.value,
-                label: t(`vendorType.${vendor.vendorType.value}`) as VendorType,
+                label: t(`vendorType.${vendor.vendorType.value}`),
               }
             : null,
         }
@@ -201,7 +173,10 @@ export default function VendorsForm({
               labelText={t("vendorTypeTitle")}
               labelClassName="flex w-36 text-right justify-end items-center text-sm font-medium mr-6"
               name="vendorType"
-              options={options}
+              options={enumToOptions(VendorType).map((option) => ({
+                value: option.value,
+                label: t(`vendorType.${option.value}`),
+              }))}
               isEditMode={isEditMode}
               isClearable={false}
             />

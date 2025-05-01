@@ -38,10 +38,7 @@
     "vendorType": {
       "Supplier": "Proveedor",
       "Distributor": "Distribuidor",
-      "Manufacturer": "Fabricante",
-      "Proveedor": "Proveedor",
-      "Distribuidor": "Distribuidor",
-      "Fabricante": "Fabricante"
+      "Manufacturer": "Fabricante"
     },
 
     "phone": "Teléfono",

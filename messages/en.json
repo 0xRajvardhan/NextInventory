@@ -35,16 +35,11 @@
     "placeholderContact": "Enter contact name",
     "vendorTypeTitle": "Vendor Type",
 
-
     "vendorType": {
-  "Supplier": "Supplier",
-  "Distributor": "Distributor",
-  "Manufacturer": "Manufacturer",
-  "Proveedor": "Proveedor",
-  "Distribuidor": "Distribuidor",
-  "Fabricante": "Fabricante"
-},
-
+      "Supplier": "Supplier",
+      "Distributor": "Distributor",
+      "Manufacturer": "Manufacturer"
+    },
 
     "phone": "Telephone",
     "placeholderPhone": "Enter phone number",

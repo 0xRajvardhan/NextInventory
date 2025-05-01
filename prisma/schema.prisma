@@ -125,9 +125,6 @@ enum VendorType {
   Supplier
   Distributor
   Manufacturer
-  Proveedor
-  Distribuidor
-  Fabricante
 }
 
 model ItemVendor {

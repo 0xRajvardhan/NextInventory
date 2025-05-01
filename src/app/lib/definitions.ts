@@ -458,14 +458,14 @@ export type EmployeeFormValues = z.infer<typeof EmployeeFormSchema>;
 export const VendorFormSchema = VendorSchema.extend({
   vendorType: z
     .object({
-      value: VendorTypeSchema, // Enum value (Supplier, Distributor, Manufacturer)
-      label: VendorTypeSchema, // Label for the enum value (e.g., 'Supplier')
+      value: VendorTypeSchema, // still strict
+      label: z.string(),        // allow translated label
     })
-    .nullable() // Allowing null
+    .nullable()
     .refine(
       (val) => val !== null && val.value !== undefined && val.label !== undefined,
       { message: "Please specify a valid vendor type" }
-    ), // Ensure it is not null and contains valid value and label
+    ),
 });
 
 export type VendorFormValues = z.infer<typeof VendorFormSchema>;
